@@ -98,6 +98,8 @@
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/CopyShader.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/LuminosityHighPassShader.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/UnrealBloomPass.js"></script>
+
+    <script src="./config.js"></script>
     
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js"></script>
@@ -127,23 +129,7 @@
 
     <script>
         // ================= 配置区 =================
-
-        // 1）你自己的照片路径（名字要和 assets 里一模一样）
-        const IMAGE_URLS = [
-          './assets/1.jpg',
-          './assets/2.jpg',
-          './assets/3.jpg',
-          './assets/4.jpg',
-          './assets/5.jpg',
-          './assets/6.jpg',
-          './assets/7.jpg',
-          './assets/8.jpg',
-          './assets/9.jpg',
-          './assets/10.jpg'
-        ];
-
-        // 2）照片数量，直接用数组长度，不再手写 16
-        const PHOTO_COUNT = IMAGE_URLS.length;
+        // 照片路径和 PHOTO_COUNT 已迁移到 config.js，方便复用与测试。
 
         const ORNAMENT_COUNT = 2200;  // 装饰数量（球 + 方块）
 
@@ -678,7 +664,16 @@
                     lineWidth: 2
                 });
 
+                const overlayRect = overlayCanvas.getBoundingClientRect();
+                const indexTip = handLandmarksList[0][8];
+                const cursorX = overlayRect.right - indexTip.x * overlayRect.width;
+                const cursorY = overlayRect.top + indexTip.y * overlayRect.height;
+                cursor.style.left = `${cursorX}px`;
+                cursor.style.top = `${cursorY}px`;
+                cursor.style.display = 'block';
+
                 const state = getHandState(landmarks);
+                cursor.classList.toggle('cursor-active', state === 'ok');
 
                 // ------- 1）OK 手势：切照片 -------
                 if (state === 'ok') {
@@ -791,6 +786,9 @@
                 targetYaw = THREE.MathUtils.lerp(targetYaw, 0, 0.05);
                 targetPitch = THREE.MathUtils.lerp(targetPitch, 0.3, 0.05);
                 targetRadius = THREE.MathUtils.lerp(targetRadius, DEFAULT_R, 0.05);
+
+                cursor.style.display = 'none';
+                cursor.classList.remove('cursor-active');
             }
 
             overlayCtx.restore();
